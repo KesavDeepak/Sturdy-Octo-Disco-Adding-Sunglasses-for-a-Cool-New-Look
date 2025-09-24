@@ -95,10 +95,10 @@ plt.subplot(121);plt.imshow(faceImage[:,:,::-1]); plt.title("Original Image");
 plt.subplot(122);plt.imshow(faceWithGlassesArithmetic[:,:,::-1]);plt.title("With Sunglasses");
 ```
 ## Output:
-<img width="311" height="435" alt="image" src="https://github.com/user-attachments/assets/dd024c23-ff04-41c0-9ace-069f026036a1" />
+<img width="338" height="435" alt="image" src="https://github.com/user-attachments/assets/62f05c43-2e43-40a5-b196-ddc2119e1951" />
+<img width="552" height="317" alt="image" src="https://github.com/user-attachments/assets/661e5250-88b2-4697-964f-577575685b3b" />
+<img width="1209" height="205" alt="image" src="https://github.com/user-attachments/assets/159984a1-3dcb-4833-a60d-484bf4dc8a47" />
+<img width="338" height="418" alt="image" src="https://github.com/user-attachments/assets/b4284a8e-0b55-4a3d-a942-20731b293d8a" />
+<img width="1597" height="186" alt="image" src="https://github.com/user-attachments/assets/8bafea4f-5e38-48f6-8202-156e660b2512" />
+<img width="1606" height="988" alt="image" src="https://github.com/user-attachments/assets/a13b3f8d-89ff-4043-b515-75d820110e50" />
 
-<img width="425" height="435" alt="image" src="https://github.com/user-attachments/assets/cbec7553-524b-4c16-b721-149035205941" />
-
-<img width="1597" height="749" alt="image" src="https://github.com/user-attachments/assets/067a8c3d-5555-407d-8f97-f2879c3b3db4" />
-
-<img width="533" height="812" alt="image" src="https://github.com/user-attachments/assets/ee71e96b-77b8-42fa-b35a-998d92d01ee7" />
