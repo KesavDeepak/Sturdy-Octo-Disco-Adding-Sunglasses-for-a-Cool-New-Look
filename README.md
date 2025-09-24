@@ -29,61 +29,70 @@ Feel free to fork, contribute, or customize this project for your creative needs
 
 ## Program:
 ```
+# Import libraries
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+# Load the Face Image
+faceImage = cv2.imread('profile.jpg')
+plt.imshow(faceImage[:,:,::-1]);plt.title("Face")
+faceImage.shape
+# Load the Sunglass image with Alpha channel
+# (http://pluspng.com/sunglass-png-1104.html)
+glassPNG = cv2.imread('download.png',-1)
+plt.imshow(glassPNG[:,:,::-1]);plt.title("glassPNG")
+# Resize the image to fit over the eye region
+glassPNG = cv2.resize(glassPNG,(190,50))
+print("image Dimension ={}".format(glassPNG.shape))
+# Separate the Color and alpha channels
+glassBGR = glassPNG[:,:,0:3]
+glassMask1 = glassPNG[:,:,3]
+# Display the images for clarity
+plt.figure(figsize=[15,15])
+plt.subplot(121);plt.imshow(glassBGR[:,:,::-1]);plt.title('Sunglass Color channels');
+plt.subplot(122);plt.imshow(glassMask1,cmap='gray');plt.title('Sunglass Alpha channel');
+# Make a copy
+#faceWithGlassesNaive = resized_faceImage.copy()
+faceWithGlassesNaive = faceImage.copy()
 
-face = cv2.imread("/content/23002011.png")
-sunglass = cv2.imread("/content/download.jpg", cv2.IMREAD_UNCHANGED)
+# Replace the eye region with the sunglass image
+faceWithGlassesNaive[380:430,275:465]=glassBGR
 
-# Haar Cascade for eyes
-eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
+plt.imshow(faceWithGlassesNaive[...,::-1])
+# Make the dimensions of the mask same as the input image.
+# Since Face Image is a 3-channel image, we create a 3 channel image for the mask
+glassMask = cv2.merge((glassMask1,glassMask1,glassMask1))
 
-gray = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
-eyes = eye_cascade.detectMultiScale(gray, 1.3, 5)
+# Make the values [0,1] since we are using arithmetic operations
+glassMask = np.uint8(glassMask/255)
 
-if len(eyes) >= 2:
-    eyes = sorted(eyes, key=lambda x: x[0])[:2]
-    (x1, y1, w1, h1) = eyes[0]
-    (x2, y2, w2, h2) = eyes[1]
+# Make a copy
+faceWithGlassesArithmetic = faceImage.copy()
 
-    ex = min(x1, x2)
-    ey = min(y1, y2)
-    ew = max(x1 + w1, x2 + w2) - ex
-    eh = max(h1, h2)
+# Get the eye region from the face image
+eyeROI= faceWithGlassesArithmetic[380:430,275:465]
 
-    sg_w = int(ew * 2.0)  
-    sg_h = int(eh * 1.2)  
-    sunglass_resized = cv2.resize(sunglass, (sg_w, sg_h))
+# Use the mask to create the masked eye region
+maskedEye = cv2.multiply(eyeROI,(1-  glassMask ))
 
-    x = ex - int((sg_w - ew) / 2)
-    y = ey - int((sg_h - eh) / 2)
+# Use the mask to create the masked sunglass region
+maskedGlass = cv2.multiply(glassBGR,glassMask)
 
-    sg_h, sg_w = sunglass_resized.shape[:2]
+# Combine the Sunglass in the Eye Region to get the augmented image
+eyeRoiFinal = cv2.add(maskedEye, maskedGlass)
 
-    if y+sg_h <= face.shape[0] and x+sg_w <= face.shape[1] and x >= 0 and y >= 0:
-        roi = face[y:y+sg_h, x:x+sg_w]
+# Display the intermediate results
+plt.figure(figsize=[20,20])
+plt.subplot(131);plt.imshow(maskedEye[...,::-1]);plt.title("Masked Eye Region")
+plt.subplot(132);plt.imshow(maskedGlass[...,::-1]);plt.title("Masked Sunglass Region")
+plt.subplot(133);plt.imshow(eyeRoiFinal[...,::-1]);plt.title("Augmented Eye and Sunglass")
+# Replace the eye ROI with the output from the previous section
+faceWithGlassesArithmetic[380:430,275:465]=eyeRoiFinal
 
-        if sunglass_resized.shape[2] == 4:  
-            b, g, r, a = cv2.split(sunglass_resized)
-            sunglass_rgb = cv2.merge((b, g, r))
-            mask = a / 255.0
-        else:
-            sunglass_rgb = sunglass_resized
-            mask = np.ones((sg_h, sg_w), dtype=float)
-
-        for c in range(3):
-            roi[:,:,c] = roi[:,:,c] * (1 - mask) + sunglass_rgb[:,:,c] * mask
-
-        face[y:y+sg_h, x:x+sg_w] = roi
-
-
-plt.figure(figsize=(10,10))
-plt.imshow(cv2.cvtColor(face, cv2.COLOR_BGR2RGB))
-plt.axis("off")
-plt.title("Face with Sunglasses (Aligned to Eyes)")
-plt.show()
-
+# Display the final result
+plt.figure(figsize=[20,20]);
+plt.subplot(121);plt.imshow(faceImage[:,:,::-1]); plt.title("Original Image");
+plt.subplot(122);plt.imshow(faceWithGlassesArithmetic[:,:,::-1]);plt.title("With Sunglasses");
 ```
 ## Output:
 <img width="311" height="435" alt="image" src="https://github.com/user-attachments/assets/dd024c23-ff04-41c0-9ace-069f026036a1" />
